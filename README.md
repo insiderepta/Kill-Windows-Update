@@ -1,2 +1,64 @@
-# Kill-Windows-Update
-The program was created to disable Windows updates, so far there is only a RU version
+# kill_win_update
+ 
+Небольшая утилита для Windows, которая отключает автоматические обновления и связанные с ними спонтанные перезагрузки.
+ 
+> ⚠️ Доступна только русскоязычная версия (RU only). Интерфейс, вывод в консоль и сообщения — на русском языке, перевода на другие языки нет.
+ 
+## Что делает
+ 
+- Останавливает и отключает службы обновлений: `wuauserv`, `bits`, `dosvc`, `WaasMedicSvc`
+- Прописывает политики в реестр (`HKLM\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate`), запрещающие автообновление и автоперезагрузку при вошедшем пользователе
+- Отключает задачи в Планировщике заданий, отвечающие за проверку и установку обновлений
+- Блокирует автоматическое восстановление служб `wuauserv` и `WaasMedicSvc` через параметр `Start=4` (Disabled) в реестре
+После запуска в разделе **Параметры → Центр обновления Windows** появится сообщение:
+> Ваша организация отключила автоматические обновления
+ 
+## Требования
+ 
+- Windows 10 / 11
+- Права администратора (скрипт сам проверяет и просит запуск от имени админа)
+## Использование
+ 
+### Вариант 1 — запустить исходник напрямую
+ 
+```bash
+python kill_win_update.py
+```
+ 
+Запускать от имени администратора (правой кнопкой → «Запуск от имени администратора»).
+ 
+### Вариант 2 — собрать exe самостоятельно
+ 
+```bash
+pip install pyinstaller
+pyinstaller --onefile --uac-admin --icon=logo.ico kill_win_update.py
+```
+ 
+Флаг `--uac-admin` встраивает манифест, из-за которого exe сразу запросит права администратора при запуске.
+ 
+Готовый файл появится в папке `dist/kill_win_update.exe`.
+ 
+## Как включить обновления обратно
+ 
+Скрипт только отключает, поэтому для отката нужно вручную:
+ 
+1. Включить службы обратно:
+```cmd
+   sc config wuauserv start= auto
+   sc config bits start= delayed-auto
+   sc config dosvc start= delayed-auto
+   sc config WaasMedicSvc start= demand
+```
+2. Удалить политики реестра:
+```cmd
+   reg delete "HKLM\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate\AU" /f
+   reg delete "HKLM\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate" /v "DisableWindowsUpdateAccess" /f
+```
+3. Включить задачи обратно в Планировщике заданий (раздел `Microsoft\Windows\UpdateOrchestrator` и `Microsoft\Windows\WindowsUpdate`).
+## Дисклеймер
+ 
+Скрипт вносит изменения в системный реестр и службы Windows. Используйте на свой страх и риск — отключение обновлений безопасности повышает риск заражения вредоносным ПО и появления незакрытых уязвимостей. Автор не несёт ответственности за последствия использования.
+ 
+## Лицензия
+ 
+MIT
