@@ -87,6 +87,6 @@ pyinstaller --onefile --uac-admin --icon=logo.ico kill_win_update.py
 
 **Разрешается**
 - Просматривать код для образовательных целей
-- Создавать программы на основе этого кода
+- Создавать программы на основе этого кода (Пожалуйста, пишите меня что я автор исходника приложения или вы взяли базу с https://github.com/insiderepta/Kill-Windows-Update)
 
 Все права защищены. Copyright © 2026 [1nside_Ent4].
